@@ -42,9 +42,9 @@ module.exports = {
       minRatio: 0.8,
       deleteOriginalAssets: false,
     }),
-    new HtmlWebpackPlugin({
-      template: "public/index.html",
-    }),
+    // new HtmlWebpackPlugin({
+    //   template: "public/index.html",
+    // }),
   ],
   devtool: 'eval-source-map',
 }
