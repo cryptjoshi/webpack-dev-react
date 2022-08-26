@@ -5,7 +5,7 @@ import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import config from './../webpack.config';
 var compression = require('compression')
-
+import {port} from '../src/config';
 const app = express();
 const compiler = webpack(config);
 app.use(compression())
@@ -23,4 +23,6 @@ app.get('*', function response(req, res) {
   res.sendFile(path.join(__dirname, '../build/public/index.html'));
 });
 
-app.listen(3000);
+app.listen(port,()=>{
+  console.log(`Server running on http://localhost:${port}`)
+})
