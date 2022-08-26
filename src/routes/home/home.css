@@ -1,0 +1,4 @@
+@import './../../components/variables.css'; 
+.title {
+    background-color: red;
+}

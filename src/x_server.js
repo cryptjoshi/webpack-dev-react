@@ -6,20 +6,20 @@ import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackHotServerMiddleware from 'webpack-hot-server-middleware';
 import UniversalRouter from 'universal-router'
-import config from './../webpack.config';
+import config from '../webpack.config';
 import clientConfig from './client.config'
 import serverConfig from './server.config'
 var compression = require('compression')
-import {port} from '../src/config';
+import {port} from './config';
 const app = express();
  
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from "@apollo/client/react/ssr";
  
-import routes from '../src/routes'
-import Html from './../src/components/Html'
-import App from './../src/components/App'
+import routes from './routes'
+import Html from './components/Html'
+import App from './components/App'
 
 app.use(compression())
 app.use(express.static(__dirname + '../build/public'));
@@ -79,6 +79,33 @@ app.get('*', async (req, res, next) => {
   //   res.send(`<!doctype html>${html}`);
 });
 
-app.listen(port,()=>{
-  console.log(`Server running on http://localhost:${port}`)
-})
+//
+// Error handling
+// -----------------------------------------------------------------------------
+const pe = new PrettyError();
+pe.skipNodeFiles();
+pe.skipPackage('express');
+
+app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+  console.log(pe.render(err)); // eslint-disable-line no-console
+  const locale = req.language;
+  const html = ReactDOM.renderToStaticMarkup(
+    <Html
+      title="Internal Server Error"
+      description={err.message}
+      styles={[{ id: 'css', cssText: errorPageStyle._getCss() }]} // eslint-disable-line no-underscore-dangle
+      lang={locale}
+    >
+      {/* {ReactDOM.renderToString(
+        <IntlProvider locale={locale}>
+          <ErrorPageWithoutStyle error={err} />
+        </IntlProvider>,
+      )} */}
+    </Html>,
+  );
+  res.status(err.status || 500);
+  res.send(`<!doctype html>${html}`);
+});
+app.listen(port, function () {
+    console.log(`Listening on http://localhost:${port}`);
+});

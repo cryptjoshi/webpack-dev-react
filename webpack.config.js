@@ -4,6 +4,7 @@ const path = require("path")
 const CompressionPlugin = require('compression-webpack-plugin')
 const zlib = require("zlib");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const isDebug = true
 module.exports = {
   name: "config",
   mode: 'development',
@@ -11,8 +12,36 @@ module.exports = {
     rules: [
       {test: /\.js$/, exclude: /node_modules/, use: 'babel-loader'},
       {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        test: /\.css/,
+        exclude: [path.resolve(__dirname, "../node_modules")],
+        use: [
+          {
+            loader: "isomorphic-style-loader",
+          },
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 1,
+              sourceMap: false,
+              modules: true,
+              esModule: false,
+              modules: {
+                localIdentName: isDebug?
+                  "[name]-[local]-[hash:base64:5]":
+                  "[hash:base64:5]"
+                ,
+              },
+            },
+          },
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                config: path.resolve(__dirname, "./tools/postcss.config.js"),
+              },
+            },
+          },
+        ],
       },
     ]   
   },
@@ -47,4 +76,7 @@ module.exports = {
     // }),
   ],
   devtool: 'eval-source-map',
+  // externals: {
+  //        "express": "require('express')"
+  // }
 }

@@ -1,9 +1,9 @@
 import React from "react"
+import s from './home.css'
 
-import './home.css'
 const HomeRoute = () => {
     return (
-     <div>
+     <div className={s.title}>
      <h1>Hello Home Index Routes</h1>
      </div>   
     )
