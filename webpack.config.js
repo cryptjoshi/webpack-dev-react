@@ -1,13 +1,37 @@
 const Dotenv = require("dotenv-webpack")
 const webpack = require("webpack")
+
 const path = require("path")
 const CompressionPlugin = require('compression-webpack-plugin')
 const zlib = require("zlib");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const isDebug = true
-module.exports = {
+ 
+var StringReplacePlugin = require("string-replace-webpack-plugin");
+const isVerbose = process.argv.includes('--verbose');
+const isDebug = !process.argv.includes('--release');
+const cssLoaderLegacySupportPlugins = {
+  plugins: [
+      new StringReplacePlugin(),
+  ],
+  loader: [
+      {
+          loader: StringReplacePlugin.replace({
+              replacements: [
+                  {
+                      pattern: /css-loader\!/g,
+                      replacement: function (match, p1, offset, string) {
+                          return 'css-loader?esModule=false!';
+                      }
+                  }
+              ]
+          })
+      },
+  ],
+}
+const config = {
   name: "config",
-  mode: 'development',
+  context: path.resolve(__dirname),
+  mode: isDebug?'development': 'production',
   module: {
     rules: [
       {test: /\.js$/, exclude: /node_modules/, use: 'babel-loader'},
@@ -43,20 +67,41 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.md$/,
+        loader: path.resolve(__dirname, './lib/markdown-loader.js'),
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: "asset/resource",
+      },
+      {
+        test: /\.(graphql|gql)$/,
+        exclude: /node_modules/,
+        loader: 'graphql-tag/loader',
+      },
+      {
+          test: /\.(ico|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2)(\?.*)?$/,
+          loader: 'file-loader',
+          options: {
+              name: isDebug?'[path][name].[ext]?[hash:8]' : '[hash:8].[ext]',
+          }
+      },
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
     ]   
   },
-  entry: [
-    'webpack-hot-middleware/client',
-    path.join(__dirname, './src/server.js')
-  ],
   output: {
-    path: path.resolve(__dirname, './build/public'),
-    publicPath: '/',
-    filename: "bundle.[contenthash].js",
-    clean: true,
+    path: path.resolve(__dirname, '../build/public'),
+    publicPath: '/public/',
+    pathinfo: isVerbose,
   },
   plugins: [
-    new Dotenv(),
+    // new Dotenv(),
     new webpack.HotModuleReplacementPlugin(),
     new CompressionPlugin({
       filename: "[path][base].gz",
@@ -71,12 +116,9 @@ module.exports = {
       minRatio: 0.8,
       deleteOriginalAssets: false,
     }),
-    // new HtmlWebpackPlugin({
-    //   template: "public/index.html",
-    // }),
+
   ],
   devtool: 'eval-source-map',
-  // externals: {
-  //        "express": "require('express')"
-  // }
+
 }
+module.exports={config,cssLoaderLegacySupportPlugins}

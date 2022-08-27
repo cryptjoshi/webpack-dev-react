@@ -40,8 +40,7 @@ class App extends React.PureComponent {
 
   render(){
     const {load} = this.state
-
-
+ 
     return (
       <>
       {Children.only(this.props.children)}

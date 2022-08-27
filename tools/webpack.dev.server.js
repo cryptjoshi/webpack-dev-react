@@ -8,6 +8,7 @@ import webpack from 'webpack'
 import cp from 'child_process';
 import { port } from '../src/config'
 import { ifDebug } from './lib/utils';
+// const exec = util.promisify(require('child_process').exec);
 import React from 'react';
 const clientConfig = require('./client.config')
 const serverConfig = require('./server.config');
@@ -15,13 +16,14 @@ const serverConfig = require('./server.config');
 (async function start() {
     //await exec(`rm -rf ${path.resolve(__dirname, '../build')}`)
     await cleanDir(`${path.resolve(__dirname, '../build/public')}`)
+
     if (ifDebug()) {
         // setting up hot reload entry and plugin to enable it
         // which already support react-hot-reload
-        clientConfig.entry = [
+        clientConfig.entry.client = [
             'webpack-hot-middleware/client',
            // 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000',
-            ...clientConfig.entry
+            ...clientConfig.entry.client
         ]
         clientConfig.plugins.push(
             new webpack.HotModuleReplacementPlugin(),
@@ -63,7 +65,13 @@ const serverConfig = require('./server.config');
                 server.kill('SIGTERM')
             })
          })
-
+        //  bs.watch(path.join(serverConfig.output.path, serverConfig.output.filename,"*.js"), function (event, file) {
+        //     console.log(event,file)
+        //     if (event === "change") {
+        //         bs.reload("*.js");
+        //     }
+        // });
+      
 
 
      })
