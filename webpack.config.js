@@ -2,8 +2,7 @@ const Dotenv = require("dotenv-webpack")
 const webpack = require("webpack")
 
 const path = require("path")
-const CompressionPlugin = require('compression-webpack-plugin')
-const zlib = require("zlib");
+
 const HtmlWebpackPlugin = require("html-webpack-plugin");
  
 var StringReplacePlugin = require("string-replace-webpack-plugin");
@@ -103,19 +102,7 @@ const config = {
   plugins: [
     // new Dotenv(),
     new webpack.HotModuleReplacementPlugin(),
-    new CompressionPlugin({
-      filename: "[path][base].gz",
-      algorithm: "gzip",
-      test: /\.(js|css|html|svg)$/,
-      compressionOptions: {
-        params: {
-          [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
-        },
-      },
-      threshold: 10240,
-      minRatio: 0.8,
-      deleteOriginalAssets: false,
-    }),
+  
 
   ],
   devtool: 'eval-source-map',

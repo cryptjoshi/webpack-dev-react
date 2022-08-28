@@ -1,7 +1,7 @@
 import express from 'express';
 import {port} from './config';
 import routes from "./routes"
-
+import path from 'path'
 import compression from 'compression';
 import bodyParser from 'body-parser'
 import PrettyError from 'pretty-error';
@@ -14,12 +14,11 @@ import models from './data/models';
 import schema from './data/schema';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import ReactDOM from 'react-dom/server';
-
 import { renderToStringWithData } from "@apollo/client/react/ssr";
-
+var expressStaticGzip = require('express-static-gzip');
 var { graphqlHTTP } = require('express-graphql');
 const app = express()
-app.use(compression());
+//app.use(compression());
 app.use(express.static(__dirname + '../build/public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -48,9 +47,9 @@ app.use('/graphql', graphqlHTTP(async (req,res,graphQLParams)=> ({
 }))
 )
 
-app.get('*', async (req, res, next) => {
-    try 
-    { 
+ app.get('*', async (req, res, next) => {
+     try 
+     { 
       // const apolloClient = createApolloClient({ ssrMode: true,
       //   link: createHttpLink({
       //     uri: 'http://localhost:3000',
@@ -143,8 +142,11 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 // Launch the server
 // -----------------------------------------------------------------------------
 /* eslint-disable no-console */
-models.sync().catch(err => console.error(err.stack)).then(() => {
-  app.use(compression())
+models.sync().catch(err => console.error(err.stack)).then( () => {
+  //app.use(compression())
+  app.use('/', expressStaticGzip(path.join(__dirname), {
+    enableBrotli: true
+   }));
   app.listen(port, () => {
     console.log(`The server is running at http://localhost:${port}/`);
   });

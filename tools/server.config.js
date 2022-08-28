@@ -37,7 +37,7 @@ module.exports = smp.wrap({
         new webpack.ProgressPlugin({ }),
         new webpack.DefinePlugin({
             'process.env.BROWSER': false,
-            'process.env.NODE_ENV': isDebug ? '"development"' : '"production"',
+            //'process.env.NODE_ENV': isDebug ? '"development"' : '"production"',
             //'process.env.RENTALL_BUILD_MODE': `"${buildMode}"`,
             __DEV__: isDebug,
         }),
@@ -62,5 +62,6 @@ module.exports = smp.wrap({
                 ]
             },
         ]
-    }
+    },
+    devtool: isDebug ? 'cheap-module-source-map' : 'source-map',
 })

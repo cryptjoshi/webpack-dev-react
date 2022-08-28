@@ -33,7 +33,61 @@ const container = document.getElementById('app');
 let appInstance;
 let currentLocation = history.location;
 let routes = require('./routes').default;
+async function onLocationChange(location,action){
+  scrollPositionsHistory[currentLocation.key] = {
+          scrollX: window.pageXOffset,
+          scrollY: window.pageYOffset,
+        };
+        // Delete stored scroll position for next page if any
+        if (action === 'PUSH') {
+          delete scrollPositionsHistory[location.key];
+        }
+        currentLocation = location;
+        const isInitialRender = !action;
+        try {
+          const router = new UniversalRouter(routes,{context})
+       
+          const route = await router.resolve({
+            path: location.path,
+            pathname: location.pathname,
+          })
+          if (currentLocation.key !== location.key) {
+                     return;
+          }
 
+          if (route.redirect) {
+                     history.replace(route.redirect);
+                     return;
+          }
+          const renderReactApp = isInitialRender ? ReactDOM.hydrate : ReactDOM.render;
+          appInstance = renderReactApp(
+                     <App locale={locale} context={context}>{route.component}</App>,
+                     container,
+                     () => {
+                      if (isInitialRender) {
+                          const elem = document.getElementById('css');
+                          if (elem) elem.parentNode.removeChild(elem);
+                          return;
+                        }
+                        document.title = route.title;
+                        updateMeta('description', route.description);
+                
+                        let scrollX = 0;
+                        let scrollY = 0;
+                     })
+        }
+        catch(error){
+            console.log(error)
+            if (!isInitialRender && currentLocation.key === location.key) {
+                       window.location.reload();
+            }
+        }
+}
+const main = ()=>{
+history.listen(onLocationChange);
+onLocationChange(currentLocation);
+}
+export default main
 // async function onLocationChange(location, action) {
 //     // Remember the latest scroll position for the previous location
 //     scrollPositionsHistory[currentLocation.key] = {

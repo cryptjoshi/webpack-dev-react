@@ -7,6 +7,9 @@ const TerserPlugin = require("terser-webpack-plugin");
 const isDebug = !process.argv.includes('--release');
 import { RentAllAssetCopyPlugin } from './asset-copy'
 const { ESBuildMinifyPlugin } = require('esbuild-loader')
+const CompressionPlugin = require('compression-webpack-plugin')
+const BrotliPlugin = require('brotli-webpack-plugin');
+const zlib = require("zlib");
 module.exports={
     name: 'client',
     mode: config.mode,
@@ -21,7 +24,7 @@ module.exports={
     resolve:{
         extensions: ['.js','.jsx']
     },
-    devtool: 'source-map',
+    devtool: isDebug ? 'cheap-module-source-map' : false,
     module:{
         rules: [
             {
@@ -66,7 +69,7 @@ module.exports={
             process: 'process/browser',
         }),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': isDebug ? '"development"' : '"production"',
+            //'process.env.NODE_ENV': isDebug ? '"development"' : '"production"',
             'process.env.BROWSER': true,
             __DEV__: isDebug,
           }),
@@ -77,6 +80,25 @@ module.exports={
             removeFullPathAutoPrefix: true
           }),
           ...cssLoaderLegacySupportPlugins.plugins,
+        //   new CompressionPlugin({
+        //     filename: "[path][base].gz",
+        //     algorithm: "gzip",
+        //     test: /\.(js|css|html|svg)$/,
+        //     compressionOptions: {
+        //       params: {
+        //         [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+        //       },
+        //     },
+        //     threshold: 10240,
+        //     minRatio: 0.8,
+        //     deleteOriginalAssets: false,
+        //   }),
+        //   new BrotliPlugin({
+        //     asset: '[path].br[query]',
+        //     test: /\.js$|\.css$|\.html$/,
+        //     threshold: 10240,
+        //     minRatio: 0.8
+        //     })
     ],
  
 }
