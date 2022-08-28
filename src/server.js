@@ -142,6 +142,8 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 // Launch the server
 // -----------------------------------------------------------------------------
 /* eslint-disable no-console */
+ 
+if (!__DEV__){
 models.sync().catch(err => console.error(err.stack)).then( () => {
   //app.use(compression())
   app.use('/', expressStaticGzip(path.join(__dirname), {
@@ -151,6 +153,14 @@ models.sync().catch(err => console.error(err.stack)).then( () => {
     console.log(`The server is running at http://localhost:${port}/`);
   });
 });
+} else {
+  app.use('/', expressStaticGzip(path.join(__dirname), {
+    enableBrotli: true
+   }));
+  app.listen(port, () => {
+    console.log(`The server is running at http://localhost:${port}/`);
+  });
+}
 /* eslint-enable no-console */
 console.log('Server')
 process.on('SIGINT', function() {
