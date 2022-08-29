@@ -13,7 +13,7 @@ import { ifDebug } from './lib/utils';
 import React from 'react';
 const clientConfig = require('./client.config')
 const serverConfig = require('./server.config');
-
+const hot_client = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true&overlay=true';
 (async function start() {
     //await exec(`rm -rf ${path.resolve(__dirname, '../build')}`)
     await cleanDir(`${path.resolve(__dirname, '../build/public')}`)
@@ -22,7 +22,8 @@ const serverConfig = require('./server.config');
         // setting up hot reload entry and plugin to enable it
         // which already support react-hot-reload
         clientConfig.entry.client = [
-            'webpack-hot-middleware/client',
+           // hot_client,
+           'webpack-hot-middleware/client',
            // 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000',
             ...clientConfig.entry.client
         ]
@@ -36,6 +37,9 @@ const serverConfig = require('./server.config');
    
     const devMiddle = webpackDevMiddleware(webpackBundler, {
         publicPath: clientConfig.output.publicPath,
+        stats:{
+            colors:true
+        },
         writeToDisk: true,
     })
    
@@ -43,10 +47,27 @@ const serverConfig = require('./server.config');
         console.log('bundler complete')
         const bs = browserSync.create('BSServer');
         bs.init({
-            proxy: `http://localhost:${port}`,
+            proxy: {target:`http://localhost:${port}`,ws:true},
+            ghostMode: {
+                clicks: true,
+                forms: true,
+                scroll: false,
+              },
+              logLevel: 'debug',
             middleware: [
-                require("compression")(),devMiddle,webpackHotMiddleware(webpackBundler.compilers[0], {})]
-            , open:false, callbacks: {
+                require("compression")(),
+                devMiddle,
+                webpackHotMiddleware(webpackBundler.compilers[0], {log:(log)=>{console.log(log)}})]
+                ,watchOptions: {
+                    ignoreInitial: true
+                  },
+                //   files: [
+                //     `${config.dist.views}**/*.{php,html,twig}`,
+                //     `${config.dist.images.base}**/*.{jpg,png,gif,svg}`,
+                //     `${config.dist}**/*.{css}`,
+                //   ],
+                 open:false,
+                 callbacks: {
                 /**
                  * This 'ready' callback can be used
                  * to access the Browsersync instance
@@ -76,56 +97,12 @@ const serverConfig = require('./server.config');
                 }
             }
             })
-                // },()=>{
-        //     console.log(`BrowserSync up and running at http://localhost:${port}`)
-        //     const server = cp.spawn('node', [path.join(serverConfig.output.path, serverConfig.output.filename)], {
-        //         silent: false,
-        //         env: {
-        //             ...process.env,
-        //             NODE_ENV: 'development'
-        //         }
-        //     })
-        //     handleServer(server)
-        // });
-        
-        // bs.init({
-        //     proxy: {
-        //         target: `http://localhost:${port}`,
-        //         middleware: [function(req,res,next){
-        //             var gzip = compress();
-        //              gzip(req,res,next);
-        //        },devMiddle, webpackHotMiddleware(webpackBundler.compilers[0], {})],
-        //     },
-        // }, () => {
-
-
-        //      console.log(`BrowserSync up and running at http://localhost:${port}`)
-        //      console.log('starting backend service....')
-        //      //console.log(path.join(serverConfig.output.path, serverConfig.output.filename))
-        //      const server = cp.spawn('node', [path.join(serverConfig.output.path, serverConfig.output.filename)], {
-        //          silent: false,
-        //          env: {
-        //              ...process.env,
-        //              NODE_ENV: 'development'
-        //          }
-        //      })
-
-        //     handleServer(server)
-        //     server.stderr = process.stderr
-        //     process.on('exit', () => {
-        //         server.kill('SIGTERM')
-        //     })
-        //  })
-
-
-
-        //  bs.watch(path.join(serverConfig.output.path, serverConfig.output.filename,"*.js"), function (event, file) {
-        //     console.log(event,file)
-        //     if (event === "change") {
-        //         bs.reload("*.js");
-        //     }
-        // });
-      
+            bs.watch(path.join(serverConfig.output.path)+ '**/*', function(event, file) {
+                //console.log(event, ' event on ', file);
+                if (event === 'change') {
+                  bs.reload('*.*');
+                }
+              });
 
 
      })

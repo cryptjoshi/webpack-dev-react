@@ -1,7 +1,8 @@
 import React from "react";
 import UniversalRouter from 'universal-router';
-
+import ReactDOM  from "react-dom";
 import { createPath } from 'history';
+import { createRoot } from "react-dom/client"
 import App from './components/App';
 import history from './core/history';
 //import configureStore from './store/configureStore';
@@ -29,9 +30,11 @@ const scrollPositionsHistory = {};
 if (window.history && 'scrollRestoration' in window.history) {
   window.history.scrollRestoration = 'manual';
 }
-const container = document.getElementById('app');
+const container = document.getElementById('root');
 let appInstance;
 let currentLocation = history.location;
+
+let locale = "en" //store.getState().intl.locale;
 let routes = require('./routes').default;
 async function onLocationChange(location,action){
   scrollPositionsHistory[currentLocation.key] = {
@@ -59,22 +62,32 @@ async function onLocationChange(location,action){
                      history.replace(route.redirect);
                      return;
           }
-          const renderReactApp = isInitialRender ? ReactDOM.hydrate : ReactDOM.render;
-          appInstance = renderReactApp(
-                     <App locale={locale} context={context}>{route.component}</App>,
-                     container,
-                     () => {
-                      if (isInitialRender) {
-                          const elem = document.getElementById('css');
-                          if (elem) elem.parentNode.removeChild(elem);
-                          return;
-                        }
-                        document.title = route.title;
-                        updateMeta('description', route.description);
+
+ ;
+// import App from "./components/App";
+
+// const container = document.getElementById("root");
+// const root = createRoot(container);
+          //const renderReactApp = isInitialRender = createRoot();
+     
+         //  const renderReactApp = isInitialRender ? ReactDOM.render : ReactDOM.render;
+          // appInstance = renderReactApp(
+          //            <App locale={locale} context={context}>{route.component}</App>,
+          //            container,
+          //            () => {
+          //             if (isInitialRender) {
+          //                 const elem = document.getElementById('css');
+          //                 if (elem) elem.parentNode.removeChild(elem);
+          //                 return;
+          //               }
+          //               document.title = route.title;
+          //               updateMeta('description', route.description);
                 
-                        let scrollX = 0;
-                        let scrollY = 0;
-                     })
+          //               let scrollX = 0;
+          //               let scrollY = 0;
+          //            })
+          appInstance = createRoot(container)
+           appInstance.render(<App locale={locale} context={context}>{route.component}</App>)
         }
         catch(error){
             console.log(error)

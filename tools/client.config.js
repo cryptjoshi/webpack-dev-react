@@ -8,7 +8,6 @@ const isDebug = !process.argv.includes('--release');
 import { RentAllAssetCopyPlugin } from './asset-copy'
 const { ESBuildMinifyPlugin } = require('esbuild-loader')
 const CompressionPlugin = require('compression-webpack-plugin')
-const BrotliPlugin = require('brotli-webpack-plugin');
 const zlib = require("zlib");
 module.exports={
     name: 'client',

@@ -2,7 +2,9 @@ import main from './client';
 
 function run() {
   // Run the application when both DOM is ready and page content is loaded
+  console.log(document.readyState)
   if (['complete', 'loaded', 'interactive'].includes(document.readyState) && document.body) {
+ 
     main();
   } else {
     document.addEventListener('DOMContentLoaded', main, false);

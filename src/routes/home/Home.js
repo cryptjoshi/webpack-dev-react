@@ -5,6 +5,11 @@ const HomeRoute = () => {
     return (
      <div className={s.title}>
      <h1>Hello Home Index Routes</h1>
+
+     <p>Hello BrowserSync</p>
+     <p>-----------------</p>
+     <p>Hello BrowserSync</p>
+     <p>-----------------</p>
      <p>Hello BrowserSync</p>
      </div>   
     )
