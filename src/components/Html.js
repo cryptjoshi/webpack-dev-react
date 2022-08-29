@@ -34,7 +34,15 @@ class Html extends React.Component  {
           <meta name="twitter:description" content={descriptions} />
           <meta name="theme-color" content="#ffffff"></meta>
           <link rel="favicon" href="apple-touch-icon.png" />
-          {styles && styles.map(style =>
+          {/* <link rel="stylesheet" href="/css/bootstrap.min.css" />
+          <link rel="stylesheet" type="text/css" href="/css/react-slick/slick.min.css" />
+          <link rel="stylesheet" type="text/css" href="/css/react-slick/slick-theme.min.css" />
+          <link rel="stylesheet" href="/css/rentall-common.css" />
+          <link rel="stylesheet" href="/css/min/dropzone.min.css" />
+          <link rel="stylesheet" media="print" href="/css/print.css" />
+          <link rel="stylesheet" type="text/css" href="/css/quill-snow.css" /> */}
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.0/css/swiper.css"></link>
+          {styles.map(style =>
               <style
                 key={style.id}
                 id={style.id}

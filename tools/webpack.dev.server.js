@@ -81,7 +81,7 @@ const serverConfig = require('./server.config');
             bs.watch(path.join(serverConfig.output.path)+ '**/*', function(event, file) {
                 
                 if (event === 'change') {
-                  bs.reload('*.*');
+                  bs.reload('*.js');
                 }
               });
      })

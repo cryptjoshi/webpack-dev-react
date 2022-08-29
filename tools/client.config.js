@@ -21,9 +21,19 @@ module.exports={
         chunkFilename: isDebug ? '[name].chunk.js':'[chunkhash:8].chunk.js',
     },
     resolve:{
-        extensions: ['.js','.jsx']
+        //extensions: ['.js','.jsx']
+        fallback: {
+            "crypto": false,
+            "fs": false,
+            // "path": require.resolve("path-browserify"),
+            // "os": require.resolve("os-browserify/browser"),
+            // "url": require.resolve("url"),
+            // "http": require.resolve("stream-http"),
+            // "https": require.resolve("https-browserify"),
+            "assert": require.resolve("assert"),
+        }
     },
-    devtool: isDebug ? 'cheap-module-source-map' : false,
+    devtool: "eval-cheap-source-map",
     module:{
         rules: [
             {

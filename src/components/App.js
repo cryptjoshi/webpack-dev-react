@@ -1,8 +1,8 @@
 import React,{Children} from "react";
 import PropTypes from 'prop-types'
-
-
-
+import { connect } from 'react-redux'
+import withStyles from 'isomorphic-style-loader/withStyles'
+import s from './common.css'
 const contextType = {
   insertCss: PropTypes.any,
   store: PropTypes.object,
@@ -49,4 +49,4 @@ class App extends React.PureComponent {
   }
 }
 
-export default App;
+export default (withStyles(s)(App));
