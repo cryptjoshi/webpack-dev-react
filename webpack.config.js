@@ -4,7 +4,7 @@ const webpack = require("webpack")
 const path = require("path")
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
- 
+import WriteFilePlugin from 'write-file-webpack-plugin';
 var StringReplacePlugin = require("string-replace-webpack-plugin");
 const isVerbose = process.argv.includes('--verbose');
 const isDebug = !process.argv.includes('--release');
@@ -36,6 +36,23 @@ const config = {
       {test: /\.js$/, exclude: /node_modules/, use: 'babel-loader'},
       {
         test: /\.css/,
+        include: [
+            path.resolve(__dirname, '../node_modules')
+        ],
+        use: [
+            'isomorphic-style-loader',
+            {
+                loader: 'css-loader',
+                options: {
+                    importLoaders: 1,
+                    modules: false,
+                    esModule: false,
+                }
+            },
+        ],
+      },
+      {
+        test: /\.css/,
         exclude: [path.resolve(__dirname, "../node_modules")],
         use: [
           {
@@ -45,13 +62,13 @@ const config = {
             loader: "css-loader",
             options: {
               importLoaders: 1,
-              sourceMap: false,
+              sourceMap: isDebug,
               modules: true,
               esModule: false,
               modules: {
                 localIdentName: isDebug?
                   "[name]-[local]-[hash:base64:5]":
-                  "[hash:base64:5]"
+                  "[name][hash:base64:5]"
                 ,
               },
             },
@@ -66,10 +83,10 @@ const config = {
           },
         ],
       },
-      {
-        test: /\.md$/,
-        loader: path.resolve(__dirname, './lib/markdown-loader.js'),
-      },
+      // {
+      //   test: /\.md$/,
+      //   loader: path.resolve(__dirname, './lib/markdown-loader.js'),
+      // },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: "asset/resource",
@@ -86,12 +103,12 @@ const config = {
               name: isDebug?'[path][name].[ext]?[hash:8]' : '[hash:8].[ext]',
           }
       },
-      {
-        test: /\.m?js$/,
-        resolve: {
-          fullySpecified: false,
-        },
-      },
+      // {
+      //   test: /\.m?js$/,
+      //   resolve: {
+      //     fullySpecified: false,
+      //   },
+      // },
     ]   
   },
   output: {
@@ -102,6 +119,9 @@ const config = {
   plugins: [
     // new Dotenv(),
     new webpack.HotModuleReplacementPlugin(),
+    new WriteFilePlugin({
+      test: /^(?!.+(?:hot-update.(js|json))).+$/,
+    }),
   
 
   ],

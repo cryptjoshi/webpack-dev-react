@@ -9,7 +9,7 @@ import bodyParser from 'body-parser'
 import PrettyError from 'pretty-error';
 import errorPageStyle from './routes/error/ErrorPage.css';
 import UniversalRouter from 'universal-router'
-import expressGraphQL from 'express-graphql';
+import fetch from 'cross-fetch';
 import App from './components/App'
 import Html from './components/Html';
 import React from 'react';
@@ -21,8 +21,20 @@ import { renderToStringWithData } from "@apollo/client/react/ssr";
 var expressStaticGzip = require('express-static-gzip');
 var { graphqlHTTP } = require('express-graphql');
 import StyleContext from 'isomorphic-style-loader/StyleContext'
+
+ 
+import { ApolloClient, HttpLink,InMemoryCache } from '@apollo/client';
+import configureStore from '../src/store/configStore'
+
 const app = express()
 //app.use(compression());
+
+global.navigator = global.navigator || {};
+global.navigator.userAgent = global.navigator.userAgent || 'all';
+
+
+
+ 
 app.use(express.static(__dirname + '../build/public'));
 app.use('/images', express.static(path.join(__dirname, '../images')));
 app.use('/.well-known', express.static(path.join(__dirname, '../well-known')));
@@ -41,9 +53,11 @@ app.use(requestLanguage({
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 if (__DEV__) {
   app.enable('trust proxy');
 }
+
 app.get('/favicon.ico', function(req, res) { 
     res.status(204);
     res.end();    
@@ -54,18 +68,7 @@ app.get('/favicon.ico', function(req, res) {
       return 'Hello world!';
     },
   }
-//
-// Register API middleware
-// -----------------------------------------------------------------------------
-// const graphqlMiddleware = expressGraphQL((req, res) => ({
-//   schema,
-//   graphiql: __DEV__,
-//   rootValue: {
-//     request: req,
-//     response: res
-//   },
-//   pretty: __DEV__,
-// }));
+ 
   
 app.use('/graphql', graphqlHTTP(async (req,res,graphQLParams)=> ({
   schema: schema,
@@ -80,17 +83,14 @@ app.use('/graphql', graphqlHTTP(async (req,res,graphQLParams)=> ({
  app.get('*', async (req, res, next) => {
      try 
      { 
-      // const apolloClient = createApolloClient({ ssrMode: true,
-      //   link: createHttpLink({
-      //     uri: 'http://localhost:3000',
-      //     credentials: 'same-origin',
-      //     headers: {
-      //       cookie: req.header('Cookie'),
-      //     },
-      //   }),
-      //   cache: new InMemoryCache()});
+ 
+      const apolloClient = new ApolloClient({
+        link: new HttpLink({ uri: '/graphql', fetch }),
+        cache: new InMemoryCache(),
+      
+      });
   
-    const store = { user:req.user || null}
+    const store =  configureStore({user:req.user || null},{cookie:req.headers.cookie,apolloClient})
       // configureStore({
       //   user: req.user || null,
       // }, {
@@ -112,7 +112,7 @@ app.use('/graphql', graphqlHTTP(async (req,res,graphQLParams)=> ({
       // http://redux.js.org/docs/basics/UsageWithReact.html
       store,
       // Apollo Client for use with react-apollo
-      client: {},
+      client: apolloClient,
     };
       
         const router = new UniversalRouter(routes,{context})

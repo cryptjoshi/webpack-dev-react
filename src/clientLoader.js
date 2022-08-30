@@ -16,12 +16,12 @@ if (!global.Intl) {
 
   require.ensure([
     // Add all large polyfills here
-    // 'intl',
+     'intl',
     // 'intl/locale-data/jsonp/en.js',
     // 'intl/locale-data/jsonp/cs.js',
   ], (require) => {
     // and require them here
-    // require('intl');
+     require('intl');
     // require('intl/locale-data/jsonp/en.js');
     // require('intl/locale-data/jsonp/cs.js');
 

@@ -2,11 +2,12 @@ import React from "react";
 import UniversalRouter from 'universal-router';
 import ReactDOM  from "react-dom";
 import { createPath } from 'history';
-import { createRoot } from "react-dom/client"
+import { createRoot,hydrateRoot } from "react-dom/client"
 import App from './components/App';
 import history from './core/history';
 import StyleContext from 'isomorphic-style-loader/StyleContext';
 import { updateMeta } from './core/DOMUtils';
+import { ErrorReporter, deepForceUpdate } from './core/devUtils';
 //import configureStore from './store/configureStore';
 // import createApolloClient from './core/createApolloClient';
 // const apolloClient = createApolloClient();
@@ -73,8 +74,9 @@ async function onLocationChange(location,action){
 
          
 
-          const isInitialRender = false
-                     const callback = () => {
+          //const isInitialRender = false
+          const callback = () => {
+           
                       if (isInitialRender) {
                           const elem = document.getElementById('css');
                           if (elem) elem.parentNode.removeChild(elem);
@@ -87,6 +89,7 @@ async function onLocationChange(location,action){
                         let scrollY = 0;
 
                         const pos = scrollPositionsHistory[location.key];
+                      
                         if (pos) {
                           scrollX = pos.scrollX;
                           scrollY = pos.scrollY;
@@ -109,9 +112,14 @@ async function onLocationChange(location,action){
               window.ga('send', 'pageview', createPath(location));
             }
                 
-                     }
-          appInstance = createRoot(container)
-          .render(
+          }
+
+
+
+          const renderReactApp = !isInitialRender ? hydrateRoot : createRoot;
+ 
+          appInstance = renderReactApp(container)
+          appInstance.render(
             <StyleContext.Provider value={{ insertCss }}>
   
            <App locale={locale} context={context} callback={()=>console.log("Rendering....")}>{route.component}</App>
@@ -135,8 +143,10 @@ async function onLocationChange(location,action){
 }
 
 const main = ()=>{
+  try {
       history.listen(onLocationChange);
       onLocationChange(currentLocation);
+
       if (__DEV__) {
         window.addEventListener('error', (event) => {
           appInstance = null;
@@ -144,13 +154,18 @@ const main = ()=>{
           createRoot(container).render(<ErrorReporter error={event.error} />);
         });
       }
-
+     
       if (module.hot) {
+      
+        //console.log(history)
+        console.log("module.hot:",module.hot.status(),"\n")
+        console.log("appInstance:",appInstance?true:false,"\n")
         module.hot.accept('./routes', async () => {
+      
           routes = require('./routes').default; // eslint-disable-line global-require
       
           currentLocation = history.location;
-          
+       
           // if (appInstance) {
           //   try {
           //     // Force-update the whole tree, including components that refuse to update
@@ -169,7 +184,12 @@ const main = ()=>{
           await onLocationChange(currentLocation);
         });
       }
-}
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  }
 
 export default main
  

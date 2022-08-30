@@ -8,17 +8,19 @@ import webpack from 'webpack'
 import cp from 'child_process';
 import { port } from '../src/config'
 import { ifDebug } from './lib/utils';
+import { hot } from 'react-hot-loader';
 
 const clientConfig = require('./client.config')
 const serverConfig = require('./server.config');
 (async function start() {
    
     await cleanDir(`${path.resolve(__dirname, '../build/public')}`)
-
+    //console.log(ifDebug())
+    const hot_client = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true&overlay=true';
     if (ifDebug()) {
         clientConfig.entry.client = [
-           // hot_client,
-           'webpack-hot-middleware/client',
+            hot_client,
+            //'webpack-hot-middleware/client',
             ...clientConfig.entry.client
         ]
         clientConfig.plugins.push(
@@ -27,6 +29,7 @@ const serverConfig = require('./server.config');
     }
     
     const webpackBundler = webpack([clientConfig, serverConfig])
+    
     const devMiddle = webpackDevMiddleware(webpackBundler, {
         publicPath: clientConfig.output.publicPath,
         stats:{
@@ -78,10 +81,11 @@ const serverConfig = require('./server.config');
                 }
             }
             })
-            bs.watch(path.join(serverConfig.output.path)+ '**/*', function(event, file) {
-                
+             bs.watch(path.join(serverConfig.output.path)+ '/*.js', function(event, file) {
+              
                 if (event === 'change') {
-                  bs.reload('*.js');
+                   // module.hot.accept()
+                 bs.reload('*.js');
                 }
               });
      })

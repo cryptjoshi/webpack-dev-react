@@ -4,7 +4,7 @@ const { config, cssLoaderLegacySupportPlugins } = require('../webpack.config')
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const isDebug = true;
 const smp = new SpeedMeasurePlugin();
-
+ 
 module.exports = smp.wrap({
     mode: config.mode,
     context: config.context,

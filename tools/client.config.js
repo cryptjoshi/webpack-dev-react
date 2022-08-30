@@ -13,7 +13,7 @@ module.exports={
     name: 'client',
     mode: config.mode,
     target: 'web',
-    entry: ['./src/clientLoader.js'],
+    entry: [ 'babel-polyfill','./src/clientLoader.js'],
     output: {
         publicPath: config.output.publicPath,
         path: outputDir,
@@ -25,17 +25,18 @@ module.exports={
         fallback: {
             "crypto": false,
             "fs": false,
-            // "path": require.resolve("path-browserify"),
-            // "os": require.resolve("os-browserify/browser"),
-            // "url": require.resolve("url"),
-            // "http": require.resolve("stream-http"),
-            // "https": require.resolve("https-browserify"),
+            "path": require.resolve("path-browserify"),
+            "os": require.resolve("os-browserify/browser"),
+             "url": require.resolve("url"),
+            "http": require.resolve("stream-http"),
+            "https": require.resolve("https-browserify"),
             "assert": require.resolve("assert"),
         }
     },
     devtool: "eval-cheap-source-map",
     module:{
         rules: [
+            ...config.module.rules,
             {
                 test: /\.js$/,
                 include: [
@@ -52,7 +53,7 @@ module.exports={
                     },
                 ]
             },
-            ...config.module.rules,
+           
         ]
     },
     optimization: {
@@ -89,19 +90,19 @@ module.exports={
             removeFullPathAutoPrefix: true
           }),
           ...cssLoaderLegacySupportPlugins.plugins,
-        //   new CompressionPlugin({
-        //     filename: "[path][base].gz",
-        //     algorithm: "gzip",
-        //     test: /\.(js|css|html|svg)$/,
-        //     compressionOptions: {
-        //       params: {
-        //         [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
-        //       },
-        //     },
-        //     threshold: 10240,
-        //     minRatio: 0.8,
-        //     deleteOriginalAssets: false,
-        //   }),
+          new CompressionPlugin({
+            filename: "[path][base].gz",
+            algorithm: "gzip",
+            test: /\.(js|css|html|svg)$/,
+            compressionOptions: {
+              params: {
+                [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+              },
+            },
+            threshold: 10240,
+            minRatio: 0.8,
+            deleteOriginalAssets: false,
+          }),
         //   new BrotliPlugin({
         //     asset: '[path].br[query]',
         //     test: /\.js$|\.css$|\.html$/,
